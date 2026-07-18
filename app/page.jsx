@@ -2,12 +2,13 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useEffect, useState } from 'react'
-import { FaAws, FaWhatsapp } from 'react-icons/fa'
+import { FaAws, FaFilePdf, FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa'
 import {
   SiBetterstack,
   SiDatadog,
   SiDocker,
   SiGithubactions,
+  SiGmail,
   SiGnubash,
   SiGrafana,
   SiJenkins,
@@ -28,12 +29,10 @@ import {
   Download,
   Gauge,
   GitBranch,
-  Github,
   Globe2,
   HardDrive,
   KeyRound,
   LockKeyhole,
-  Mail,
   Menu,
   MonitorCog,
   Network,
@@ -139,6 +138,9 @@ const productionProof = [
   { value: 'B/G', label: 'Safer production releases', detail: 'Blue-green with rollback' },
   { value: '24/7', label: 'Operational visibility', detail: 'Dashboards, alerts, incidents' },
 ]
+
+const crystalDots = Array.from({ length: 14 }, (_, index) => index)
+const shootingStars = Array.from({ length: 5 }, (_, index) => index)
 
 const workStories = [
   {
@@ -257,6 +259,12 @@ export default function Home() {
   return (
     <main>
       <a className="skip-link" href="#about">Skip to content</a>
+      <div className="shooting-star-field" aria-hidden="true">
+        {shootingStars.map((star) => <span className="shooting-star" key={star} />)}
+      </div>
+      <div className="crystal-field" aria-hidden="true">
+        {crystalDots.map((dot) => <span className="crystal-dot" key={dot} />)}
+      </div>
 
       <header className="site-header">
         <div className="nav shell">
@@ -501,11 +509,11 @@ export default function Home() {
             <h2>Need someone who thinks beyond the deploy?</h2>
             <p>Open to Cloud & DevOps engineering opportunities where automation, security, and production reliability matter.</p>
             <div className="contact-links">
-              <a href={`mailto:${profile.email}`}><Mail size={17} /> Email</a>
-              <a href={profile.linkedin} target="_blank" rel="noreferrer"><ArrowUpRight size={17} /> LinkedIn</a>
-              <a href={profile.github} target="_blank" rel="noreferrer"><Github size={17} /> GitHub</a>
+              <a className="email-link" href={`mailto:${profile.email}`}><SiGmail size={17} /> Email</a>
+              <a className="linkedin-link" href={profile.linkedin} target="_blank" rel="noreferrer"><FaLinkedin size={17} /> LinkedIn</a>
+              <a className="github-link" href={profile.github} target="_blank" rel="noreferrer"><FaGithub size={17} /> GitHub</a>
               <a className="whatsapp-link" href={profile.whatsapp} target="_blank" rel="noreferrer"><FaWhatsapp size={17} /> WhatsApp</a>
-              <a href="/Bonagiri-Sai-Nishwanth-Resume.pdf" download><Download size={17} /> Resume</a>
+              <a className="resume-contact-link" href="/Bonagiri-Sai-Nishwanth-Resume.pdf" download><FaFilePdf size={17} /> Resume</a>
             </div>
           </div>
           <form className="contact-form" onSubmit={sendMessage}>
