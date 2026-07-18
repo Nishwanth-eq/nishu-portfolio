@@ -422,10 +422,6 @@ export default function Home() {
               <div><span>04</span><strong>Design for recovery</strong><p>Make rollback, troubleshooting, and support part of delivery.</p></div>
             </div>
           </div>
-          <div className="education-bar" data-motion="rise">
-            <div><span className="eyebrow">Education · 2021</span><h3>B.Com, Computer Applications</h3><p>Gayathri Degree College · Kakatiya University</p></div>
-            <strong>7.72 <span>GPA</span></strong>
-          </div>
         </div>
       </section>
 
