@@ -28,6 +28,7 @@ import {
   Download,
   Gauge,
   GitBranch,
+  Github,
   Globe2,
   HardDrive,
   KeyRound,
@@ -42,6 +43,8 @@ import {
   ServerCog,
   ShieldCheck,
   SlidersHorizontal,
+  Moon,
+  Sun,
   Table2,
   Terminal,
   Waypoints,
@@ -123,11 +126,18 @@ function TechIcon({ name }) {
 const capabilityIcons = [CloudCog, Workflow, Boxes]
 
 const deliveryFlow = [
-  { label: 'Source', detail: 'Commit & review', Icon: GitBranch },
-  { label: 'Pipeline', detail: 'Build & validate', Icon: Workflow },
-  { label: 'Container', detail: 'Package once', Icon: Boxes },
-  { label: 'Cloud', detail: 'Deploy safely', Icon: CloudCog },
-  { label: 'Observe', detail: 'Watch & improve', Icon: Activity },
+  { label: 'Source', detail: 'Commit & review', tool: 'GitHub', Icon: GitBranch },
+  { label: 'Pipeline', detail: 'Build & validate', tool: 'Actions + OIDC', Icon: Workflow },
+  { label: 'Container', detail: 'Package once', tool: 'Docker', Icon: Boxes },
+  { label: 'Cloud', detail: 'Deploy safely', tool: 'ECS + CodeDeploy', Icon: CloudCog },
+  { label: 'Observe', detail: 'Watch & improve', tool: 'CloudWatch + Better Stack', Icon: Activity },
+]
+
+const productionProof = [
+  { value: 'IaC', label: 'Multi-environment AWS', detail: 'Terraform-managed foundations' },
+  { value: 'OIDC', label: 'Keyless cloud access', detail: 'No long-lived CI credentials' },
+  { value: 'B/G', label: 'Safer production releases', detail: 'Blue-green with rollback' },
+  { value: '24/7', label: 'Operational visibility', detail: 'Dashboards, alerts, incidents' },
 ]
 
 const workStories = [
@@ -165,7 +175,16 @@ const workStories = [
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [theme, setTheme] = useState('dark')
   const [formStatus, setFormStatus] = useState({ type: 'idle', message: '' })
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const activeTheme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+      setTheme(activeTheme)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [])
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen)
@@ -204,6 +223,14 @@ export default function Home() {
 
   const closeMenu = () => setMenuOpen(false)
 
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.dataset.theme = nextTheme
+    document.documentElement.style.colorScheme = nextTheme
+    window.localStorage.setItem('portfolio-theme', nextTheme)
+    setTheme(nextTheme)
+  }
+
   const sendMessage = async (event) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -233,17 +260,27 @@ export default function Home() {
 
       <header className="site-header">
         <div className="nav shell">
-          <a className="wordmark" href="#top" aria-label="Nishwanth, home"><span>BN</span><i /></a>
+          <a className="wordmark" href="#top" aria-label={`${profile.name}, home`}>
+            <span className="wordmark-badge">BN</span>
+            <span className="wordmark-name">{profile.name}</span>
+            <i />
+          </a>
           <nav id="main-navigation" className={menuOpen ? 'is-open' : ''} aria-label="Main navigation">
             <a href="#about" onClick={closeMenu}>About</a>
             <a href="#work" onClick={closeMenu}>Work</a>
             <a href="#experience" onClick={closeMenu}>Experience</a>
             <a href="#contact" onClick={closeMenu}>Contact</a>
           </nav>
-          <a className="resume-link" href="/Bonagiri-Sai-Nishwanth-Resume.pdf" download>Download CV <Download size={15} /></a>
-          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="main-navigation" aria-label="Toggle navigation">
-            {menuOpen ? <X /> : <Menu />}
-          </button>
+          <div className="nav-actions">
+            <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
+              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+              <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
+            <a className="resume-link" href="/Bonagiri-Sai-Nishwanth-Resume.pdf" download>Download CV <Download size={15} /></a>
+            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="main-navigation" aria-label="Toggle navigation">
+              {menuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -328,6 +365,7 @@ export default function Home() {
                 <div className="flow-icon"><stage.Icon size={21} /></div>
                 <strong>{stage.label}</strong>
                 <p>{stage.detail}</p>
+                <span className="flow-tool">{stage.tool}</span>
               </div>
             ))}
           </div>
@@ -335,6 +373,20 @@ export default function Home() {
             <span><ShieldCheck size={16} /> Security at every boundary</span>
             <span><Network size={16} /> Networking that stays explicit</span>
             <span><Gauge size={16} /> Signals before surprises</span>
+          </div>
+          <div className="production-proof" data-motion="rise">
+            <div className="proof-heading">
+              <span>PRODUCTION / PROOF</span>
+              <p>Concrete practices I use to reduce delivery risk.</p>
+            </div>
+            <div className="proof-grid">
+              {productionProof.map((item) => (
+                <article key={item.label}>
+                  <strong>{item.value}</strong>
+                  <div><h3>{item.label}</h3><p>{item.detail}</p></div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -450,6 +502,7 @@ export default function Home() {
             <div className="contact-links">
               <a href={`mailto:${profile.email}`}><Mail size={17} /> Email</a>
               <a href={profile.linkedin} target="_blank" rel="noreferrer"><ArrowUpRight size={17} /> LinkedIn</a>
+              <a href={profile.github} target="_blank" rel="noreferrer"><Github size={17} /> GitHub</a>
               <a href="/Bonagiri-Sai-Nishwanth-Resume.pdf" download><Download size={17} /> Resume</a>
             </div>
           </div>

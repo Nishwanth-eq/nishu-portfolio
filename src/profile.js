@@ -5,6 +5,7 @@ export const profile = {
   email: 'bonagirinishwanth@gmail.com',
   phone: '+91 70138 66730',
   linkedin: 'https://www.linkedin.com/in/nishwanthbonagiri/',
+  github: 'https://github.com/Nishwanth-eq',
   summary:
     'Cloud & DevOps Engineer with 3 years of experience designing, deploying, and automating AWS and Azure infrastructure with Terraform, secure CI/CD, containers, and production observability.',
   impact: [
