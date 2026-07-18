@@ -269,6 +269,7 @@ export default function Home() {
             <a href="#about" onClick={closeMenu}>About</a>
             <a href="#work" onClick={closeMenu}>Work</a>
             <a href="#experience" onClick={closeMenu}>Experience</a>
+            <a href="#skills" onClick={closeMenu}>Skills</a>
             <a href="#contact" onClick={closeMenu}>Contact</a>
           </nav>
           <div className="nav-actions">
