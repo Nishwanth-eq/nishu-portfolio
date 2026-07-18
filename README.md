@@ -62,9 +62,25 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```bash
 npm run dev    # Start the local development server
 npm run lint   # Run ESLint checks
-npm run build  # Create a production build
-npm run start  # Start the production server
+npm run build  # Create the Next.js/Vercel production build
+npm run start  # Start the Next.js production server
+npm run dev:sites    # Start the vinext/Sites development server
+npm run build:sites  # Create the Cloudflare/Sites build
 ```
+
+## Deploy to Vercel
+
+The default project commands use native Next.js output and are compatible with Vercel.
+
+1. Push the repository to GitHub.
+2. Import the repository into Vercel.
+3. Keep the framework preset set to **Next.js**.
+4. Keep the build command as `npm run build`.
+5. Leave the output directory on the Next.js default.
+
+Vercel will install dependencies and run the native `next build` command automatically.
+
+The separate `*:sites` commands preserve the vinext build path for Cloudflare/Sites deployments.
 
 ## Project Structure
 
