@@ -1,0 +1,75 @@
+export const profile = {
+  name: 'Bonagiri Sai Nishwanth',
+  shortName: 'Nishwanth',
+  role: 'Cloud & DevOps Engineer',
+  email: 'bonagirinishwanth@gmail.com',
+  phone: '+91 70138 66730',
+  linkedin: 'https://www.linkedin.com/in/nishwanthbonagiri/',
+  summary:
+    'Cloud & DevOps Engineer with 3 years of experience designing, deploying, and automating AWS and Azure infrastructure with Terraform, secure CI/CD, containers, and production observability.',
+  impact: [
+    { value: '3+', label: 'Years in cloud operations' },
+    { value: '2', label: 'Cloud platforms' },
+    { value: '24/7', label: 'Production reliability' },
+  ],
+  capabilities: [
+    {
+      number: '01',
+      title: 'Cloud infrastructure',
+      copy: 'Multi-environment AWS and Azure infrastructure defined with Terraform and built around resilient networking, scalable services, and controlled access.',
+      tools: ['Terraform', 'AWS', 'Azure', 'ECS', 'VPC', 'Aurora', 'DynamoDB'],
+    },
+    {
+      number: '02',
+      title: 'Delivery automation',
+      copy: 'Secure CI/CD with OIDC authentication, blue-green releases, and automated rollback that make production changes safer and repeatable.',
+      tools: ['GitHub Actions', 'OIDC', 'CodePipeline', 'CodeDeploy', 'Azure DevOps'],
+    },
+    {
+      number: '03',
+      title: 'Containers & reliability',
+      copy: 'Containerized workloads, autoscaling, service discovery, dashboards, alerting, and hands-on incident support for live systems.',
+      tools: ['Docker', 'Kubernetes', 'ECS', 'CloudWatch', 'Datadog', 'Better Stack'],
+    },
+  ],
+  experience: [
+    {
+      company: 'Equicom Technologies Pvt. Ltd.',
+      role: 'Cloud & DevOps Engineer',
+      period: 'Jul 2025 — Present',
+      summary: 'Building secure, multi-environment AWS infrastructure and deployment systems for trading, back-office, market-data, custody, and reporting workflows.',
+      focus: ['Terraform IaC', 'OIDC CI/CD', 'ECS microservices', 'Better Stack'],
+      points: [
+        'Build multi-environment AWS infrastructure with Terraform, ECS, EC2, VPC, IAM, S3, Aurora, and DynamoDB.',
+        'Automate CI/CD with GitHub Actions, OIDC-based AWS authentication, and AWS CodeDeploy.',
+        'Implement blue-green deployments with automated rollback for safer production releases.',
+        'Operate Docker microservices on ECS with load balancers, autoscaling, and service discovery.',
+        'Secure runtime configuration through AppConfig, Secrets Manager, KMS, and least-privilege IAM.',
+        'Build dashboards and alerts with CloudWatch, Datadog, and Better Stack while supporting production incidents.',
+      ],
+    },
+    {
+      company: 'Log-UsIMS Technologies Pvt. Ltd.',
+      role: 'Cloud & DevOps Engineer',
+      period: 'Jul 2023 — Jul 2025',
+      summary: 'Delivered multi-cloud infrastructure, automation, and production support across AWS and Azure.',
+      focus: ['Multi-cloud', 'AKS containers', 'Hybrid networking'],
+      points: [
+        'Built cloud environments across AWS and Azure using EC2, VPC, S3, RDS, VMs, VNets, and Azure SQL.',
+        'Automated pipelines with Jenkins, GitHub Actions, Azure DevOps, and AWS CodePipeline.',
+        'Deployed Docker applications and managed Kubernetes clusters on AKS.',
+        'Configured monitoring, DNS, load balancing, VPNs, and hybrid cloud connectivity.',
+      ],
+    },
+  ],
+  skills: {
+    Cloud: ['AWS', 'Azure'],
+    'Cloud Services': ['EC2', 'ECS', 'VPC', 'S3', 'RDS', 'Aurora', 'DynamoDB', 'Azure VMs', 'Azure Web Apps', 'Azure SQL', 'VNets', 'Azure Storage'],
+    'Delivery & IaC': ['Terraform', 'GitHub Actions', 'Jenkins', 'AWS CodePipeline', 'CodeDeploy', 'Azure DevOps', 'OIDC'],
+    Containers: ['Docker', 'Kubernetes', 'EKS', 'AKS'],
+    Observability: ['CloudWatch', 'Datadog', 'Better Stack', 'Prometheus', 'Grafana', 'Azure Monitor', 'Nagios'],
+    Networking: ['Route 53', 'Front Door', 'Load Balancers', 'VNet Peering', 'NAT Gateway', 'VPNs'],
+    Scripting: ['Bash', 'Shell', 'AWS CLI', 'Azure CLI'],
+    Security: ['AWS AppConfig', 'Secrets Manager', 'KMS', 'Least-privilege IAM', 'OIDC'],
+  },
+}
