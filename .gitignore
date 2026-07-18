@@ -4,6 +4,7 @@
 /.wrangler
 /.DS_Store
 /.env*
+!/.env.example
 *.pem
 npm-debug.log*
 next-env.d.ts

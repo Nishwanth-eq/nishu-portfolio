@@ -165,6 +165,7 @@ const workStories = [
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [formStatus, setFormStatus] = useState({ type: 'idle', message: '' })
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen)
@@ -203,12 +204,27 @@ export default function Home() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  const sendMessage = (event) => {
+  const sendMessage = async (event) => {
     event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    const subject = encodeURIComponent(`Portfolio enquiry from ${data.get('name')}`)
-    const body = encodeURIComponent(`${data.get('message')}\n\nFrom: ${data.get('name')}\nEmail: ${data.get('email')}`)
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`
+    const form = event.currentTarget
+    const data = Object.fromEntries(new FormData(form))
+    setFormStatus({ type: 'sending', message: 'Sending your message…' })
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const result = await response.json()
+
+      if (!response.ok) throw new Error(result.error || 'Message could not be sent.')
+
+      form.reset()
+      setFormStatus({ type: 'success', message: 'Message sent successfully. I’ll get back to you soon.' })
+    } catch (error) {
+      setFormStatus({ type: 'error', message: error.message || 'Message could not be sent. Please use the email link.' })
+    }
   }
 
   return (
@@ -444,7 +460,14 @@ export default function Home() {
             <input id="email" name="email" type="email" placeholder="you@company.com" autoComplete="email" required />
             <label htmlFor="message">Message</label>
             <textarea id="message" name="message" placeholder="Tell me about the role or system" required />
-            <button type="submit">Send message <Send size={17} /></button>
+            <div className="form-honeypot" aria-hidden="true">
+              <label htmlFor="company">Company</label>
+              <input id="company" name="company" tabIndex={-1} autoComplete="off" />
+            </div>
+            <button type="submit" disabled={formStatus.type === 'sending'}>
+              {formStatus.type === 'sending' ? 'Sending…' : 'Send message'} <Send size={17} />
+            </button>
+            {formStatus.message && <p className={`form-status ${formStatus.type}`} role="status" aria-live="polite">{formStatus.message}</p>}
           </form>
         </div>
         <footer className="shell footer-bottom">

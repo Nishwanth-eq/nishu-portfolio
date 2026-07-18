@@ -82,6 +82,25 @@ Vercel will install dependencies and run the native `next build` command automat
 
 The separate `*:sites` commands preserve the vinext build path for Cloudflare/Sites deployments.
 
+## Configure the Contact Form
+
+The contact form sends messages through a server-side API route using the Resend email API.
+
+1. Create a [Resend](https://resend.com) account and API key.
+2. Copy `.env.example` to `.env.local` for local development.
+3. Replace the example `RESEND_API_KEY` value with your API key.
+4. In Vercel, open **Project Settings → Environment Variables** and add:
+
+```text
+RESEND_API_KEY=re_your_api_key
+CONTACT_TO_EMAIL=bonagirinishwanth@gmail.com
+CONTACT_FROM_EMAIL=Portfolio Contact <onboarding@resend.dev>
+```
+
+Apply the variables to Production and Preview, then redeploy. Vercel only applies newly added environment variables to new deployments.
+
+The `onboarding@resend.dev` sender can only deliver test messages to the email address associated with the Resend account. For unrestricted production delivery, verify a domain in Resend and change `CONTACT_FROM_EMAIL` to an address on that domain.
+
 ## Project Structure
 
 ```text

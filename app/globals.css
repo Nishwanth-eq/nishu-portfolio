@@ -260,6 +260,12 @@ h1 em { color: var(--cyan); font-style: normal; }
 .contact-form input::placeholder, .contact-form textarea::placeholder { color: #637b8c; }
 .contact-form button { grid-column: 1 / -1; display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 16px; color: #04101b; background: linear-gradient(135deg, var(--aws), #ffb84d); background-size: 160% 100%; font-weight: 700; cursor: pointer; transition: transform .2s, box-shadow .2s, background-position .35s; }
 .contact-form button:hover { transform: translateY(-2px); background-position: 100% 0; box-shadow: 0 14px 35px rgba(255,153,0,.22); }
+.contact-form button:disabled { opacity: .68; cursor: wait; transform: none; box-shadow: none; }
+.form-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.form-status { grid-column: 1 / -1; margin: 4px 0 0; font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.form-status.sending { color: #91a6b8; }
+.form-status.success { color: #55e59c; }
+.form-status.error { color: #ff9d8f; }
 .footer-bottom { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-top: 34px; color: #657d8e; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
 .footer-bottom a { justify-self: end; display: inline-flex; align-items: center; gap: 6px; color: #9db0bd; }
 
