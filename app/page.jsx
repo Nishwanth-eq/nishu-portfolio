@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useEffect, useState } from 'react'
-import { FaAws } from 'react-icons/fa'
+import { FaAws, FaWhatsapp } from 'react-icons/fa'
 import {
   SiBetterstack,
   SiDatadog,
@@ -504,6 +504,7 @@ export default function Home() {
               <a href={`mailto:${profile.email}`}><Mail size={17} /> Email</a>
               <a href={profile.linkedin} target="_blank" rel="noreferrer"><ArrowUpRight size={17} /> LinkedIn</a>
               <a href={profile.github} target="_blank" rel="noreferrer"><Github size={17} /> GitHub</a>
+              <a className="whatsapp-link" href={profile.whatsapp} target="_blank" rel="noreferrer"><FaWhatsapp size={17} /> WhatsApp</a>
               <a href="/Bonagiri-Sai-Nishwanth-Resume.pdf" download><Download size={17} /> Resume</a>
             </div>
           </div>

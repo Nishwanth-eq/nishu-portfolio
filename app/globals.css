@@ -268,6 +268,7 @@ h1 em { color: var(--cyan); font-style: normal; }
 .contact-links { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 36px; }
 .contact-links a { display: inline-flex; align-items: center; gap: 7px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; color: #c7d6df; font-size: 11px; transition: color .2s, border-color .2s; }
 .contact-links a:hover { color: var(--aws); border-color: rgba(255,153,0,.48); }
+.contact-links .whatsapp-link svg { color: #25d366; }
 .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
 .contact-form label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .contact-form input, .contact-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 17px; outline: none; color: #e5f0f6; background: rgba(3,12,20,.46); transition: border-color .2s; }

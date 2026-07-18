@@ -6,6 +6,7 @@ export const profile = {
   phone: '+91 70138 66730',
   linkedin: 'https://www.linkedin.com/in/nishwanthbonagiri/',
   github: 'https://github.com/Nishwanth-eq',
+  whatsapp: 'https://wa.me/917013866730?text=Hello%20Nishwanth%2C%20I%20found%20your%20Cloud%20%26%20DevOps%20portfolio%20and%20would%20like%20to%20connect.',
   summary:
     'Cloud & DevOps Engineer with 3 years of experience designing, deploying, and automating AWS and Azure infrastructure with Terraform, secure CI/CD, containers, and production observability.',
   impact: [
