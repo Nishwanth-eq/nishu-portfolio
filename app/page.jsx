@@ -175,7 +175,98 @@ const workStories = [
   },
 ]
 
+function playVaultUnlockSound() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext
+  if (!AudioContextClass) return
+
+  try {
+    const audio = new AudioContextClass()
+    const now = audio.currentTime
+    const master = audio.createGain()
+    const compressor = audio.createDynamicsCompressor()
+    master.gain.setValueAtTime(0.48, now)
+    compressor.threshold.setValueAtTime(-20, now)
+    compressor.knee.setValueAtTime(14, now)
+    compressor.ratio.setValueAtTime(7, now)
+    compressor.attack.setValueAtTime(0.004, now)
+    compressor.release.setValueAtTime(0.28, now)
+    master.connect(compressor)
+    compressor.connect(audio.destination)
+
+    const resonance = ({ start, duration, frequency, endFrequency, gain, type = 'sine' }) => {
+      const oscillator = audio.createOscillator()
+      const envelope = audio.createGain()
+      oscillator.type = type
+      oscillator.frequency.setValueAtTime(frequency, now + start)
+      oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + start + duration)
+      envelope.gain.setValueAtTime(0.0001, now + start)
+      envelope.gain.exponentialRampToValueAtTime(gain, now + start + 0.012)
+      envelope.gain.exponentialRampToValueAtTime(0.0001, now + start + duration)
+      oscillator.connect(envelope)
+      envelope.connect(master)
+      oscillator.start(now + start)
+      oscillator.stop(now + start + duration + 0.02)
+    }
+
+    const noiseLayer = ({ start, duration, gain, frequency, endFrequency = frequency, type = 'bandpass', q = 1 }) => {
+      const noiseLength = Math.floor(audio.sampleRate * duration)
+      const noiseBuffer = audio.createBuffer(1, noiseLength, audio.sampleRate)
+      const noiseData = noiseBuffer.getChannelData(0)
+      for (let sample = 0; sample < noiseLength; sample += 1) noiseData[sample] = (Math.random() * 2) - 1
+
+      const noise = audio.createBufferSource()
+      const filter = audio.createBiquadFilter()
+      const envelope = audio.createGain()
+      noise.buffer = noiseBuffer
+      filter.type = type
+      filter.Q.setValueAtTime(q, now + start)
+      filter.frequency.setValueAtTime(frequency, now + start)
+      filter.frequency.exponentialRampToValueAtTime(endFrequency, now + start + duration)
+      envelope.gain.setValueAtTime(0.0001, now + start)
+      envelope.gain.exponentialRampToValueAtTime(gain, now + start + Math.min(0.08, duration * 0.22))
+      envelope.gain.exponentialRampToValueAtTime(0.0001, now + start + duration)
+      noise.connect(filter)
+      filter.connect(envelope)
+      envelope.connect(master)
+      noise.start(now + start)
+      noise.stop(now + start + duration + 0.02)
+    }
+
+    noiseLayer({ start: 0, duration: 0.22, gain: 0.32, frequency: 760, endFrequency: 190, q: 1.8 })
+    resonance({ start: 0, duration: 0.48, frequency: 138, endFrequency: 84, gain: 0.28 })
+    resonance({ start: 0.018, duration: 0.38, frequency: 227, endFrequency: 142, gain: 0.15 })
+    resonance({ start: 0.05, duration: 0.55, frequency: 64, endFrequency: 42, gain: 0.22 })
+
+    noiseLayer({ start: 0.9, duration: 1.48, gain: 0.18, frequency: 135, endFrequency: 230, q: 0.8 })
+    noiseLayer({ start: 0.94, duration: 1.42, gain: 0.08, frequency: 920, endFrequency: 470, type: 'bandpass', q: 2.4 })
+    resonance({ start: 0.9, duration: 1.48, frequency: 43, endFrequency: 35, gain: 0.24, type: 'triangle' })
+    resonance({ start: 0.9, duration: 1.48, frequency: 57, endFrequency: 69, gain: 0.13, type: 'triangle' })
+    for (let ratchet = 0; ratchet < 5; ratchet += 1) {
+      const start = 1.06 + (ratchet * 0.25)
+      noiseLayer({ start, duration: 0.1, gain: 0.11, frequency: 460 - (ratchet * 35), endFrequency: 150, q: 1.4 })
+      resonance({ start, duration: 0.2, frequency: 118 - (ratchet * 6), endFrequency: 72, gain: 0.08 })
+    }
+
+    noiseLayer({ start: 2.28, duration: 1.16, gain: 0.23, frequency: 170, endFrequency: 62, type: 'lowpass', q: 0.7 })
+    noiseLayer({ start: 2.3, duration: 1.02, gain: 0.075, frequency: 820, endFrequency: 380, q: 0.65 })
+    resonance({ start: 2.28, duration: 1.14, frequency: 39, endFrequency: 27, gain: 0.3, type: 'triangle' })
+    resonance({ start: 2.32, duration: 0.92, frequency: 72, endFrequency: 46, gain: 0.1 })
+
+    noiseLayer({ start: 3.36, duration: 0.2, gain: 0.28, frequency: 420, endFrequency: 85, q: 1.1 })
+    resonance({ start: 3.36, duration: 0.62, frequency: 76, endFrequency: 38, gain: 0.32 })
+    resonance({ start: 3.38, duration: 0.4, frequency: 126, endFrequency: 66, gain: 0.14 })
+
+    if (audio.state === 'suspended') audio.resume().catch(() => {})
+    window.setTimeout(() => audio.close().catch(() => {}), 4500)
+  } catch {
+    // The visual unlock remains available when browser audio is unavailable.
+  }
+}
+
 export default function Home() {
+  const [welcomeState, setWelcomeState] = useState('open')
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState('dark')
   const [formStatus, setFormStatus] = useState({ type: 'idle', message: '' })
@@ -187,6 +278,39 @@ export default function Home() {
     })
     return () => window.cancelAnimationFrame(frame)
   }, [])
+
+  useEffect(() => {
+    if (welcomeState !== 'unlocking') return undefined
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const timer = window.setTimeout(() => setWelcomeState('closed'), reduceMotion ? 0 : 3500)
+    return () => window.clearTimeout(timer)
+  }, [welcomeState])
+
+  useEffect(() => {
+    const locked = welcomeState !== 'closed'
+    const portfolioSections = document.querySelectorAll('main > .skip-link, main > header, main > section:not(.welcome-screen)')
+    document.body.classList.toggle('welcome-open', locked)
+    document.body.classList.toggle('welcome-revealing', welcomeState === 'unlocking')
+
+    portfolioSections.forEach((section) => {
+      if (locked) {
+        section.setAttribute('inert', '')
+        section.setAttribute('aria-hidden', 'true')
+      } else {
+        section.removeAttribute('inert')
+        section.removeAttribute('aria-hidden')
+      }
+    })
+
+    return () => {
+      document.body.classList.remove('welcome-open')
+      document.body.classList.remove('welcome-revealing')
+      portfolioSections.forEach((section) => {
+        section.removeAttribute('inert')
+        section.removeAttribute('aria-hidden')
+      })
+    }
+  }, [welcomeState])
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen)
@@ -224,6 +348,10 @@ export default function Home() {
   }, [])
 
   const closeMenu = () => setMenuOpen(false)
+  const explorePortfolio = () => {
+    playVaultUnlockSound()
+    setWelcomeState('unlocking')
+  }
 
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark'
@@ -259,6 +387,54 @@ export default function Home() {
   return (
     <main>
       <a className="skip-link" href="#about">Skip to content</a>
+      {welcomeState !== 'closed' && (
+        <section className={`welcome-screen${welcomeState === 'unlocking' ? ' is-unlocking' : ''}`} role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-description">
+          <div className="welcome-door welcome-door-left" aria-hidden="true" />
+          <div className="welcome-door welcome-door-right" aria-hidden="true" />
+          <div className="welcome-lock-wheels" aria-hidden="true">
+            <span className="welcome-lock-wheel welcome-lock-wheel-left" />
+            <span className="welcome-lock-wheel welcome-lock-wheel-right" />
+          </div>
+          <div className="welcome-shell">
+            <div className="welcome-status"><span><i /> SYSTEM READY</span><span>AWS / AZURE / DEVOPS</span></div>
+            <div className="welcome-content">
+              <span className="welcome-eyebrow">PRODUCTION DELIVERY / CONTROL PLANE</span>
+              <div className="welcome-topology" role="img" aria-label="DevOps delivery flow from CI/CD through Terraform and containers to observability">
+                <span className="welcome-pipeline-node welcome-node-source"><SiGithubactions /><small>SOURCE</small><strong>CI/CD</strong></span>
+                <i className="welcome-pipeline-link" />
+                <span className="welcome-pipeline-node welcome-node-iac"><SiTerraform /><small>IaC</small><strong>Terraform</strong></span>
+                <i className="welcome-pipeline-link" />
+                <span className="welcome-pipeline-node welcome-node-runtime"><Boxes /><small>RUNTIME</small><strong>Containers</strong></span>
+                <i className="welcome-pipeline-link" />
+                <span className="welcome-pipeline-node welcome-node-observe"><Activity /><small>OBSERVE</small><strong>Healthy</strong></span>
+              </div>
+              <div className="welcome-command">
+                <span><b>$</b> terraform plan --out production.tfplan</span>
+                <strong><i /> PLAN READY&nbsp; · &nbsp;0 DESTROY</strong>
+              </div>
+              <h1 id="welcome-title">{profile.name}</h1>
+              <p className="welcome-role" id="welcome-description">{profile.role}</p>
+              <div className="welcome-platforms" aria-label="Core platforms">
+                <span><FaAws /> AWS</span>
+                <span><VscAzure /> Azure</span>
+                <span><SiTerraform /> Terraform</span>
+              </div>
+              <div className="welcome-auth">
+                <div className="welcome-lock" aria-hidden="true">
+                  <span className="welcome-lock-ring"><LockKeyhole size={28} /></span>
+                  <span className="welcome-key-slot" />
+                </div>
+                <span className="welcome-lock-status" role="status" aria-live="polite">{welcomeState === 'open' ? 'ACCESS LOCKED' : 'ACCESS GRANTED'}</span>
+                <button className="welcome-key-button" type="button" onClick={explorePortfolio} disabled={welcomeState !== 'open'} autoFocus>
+                  <KeyRound className="welcome-key-icon" size={19} />
+                  <span>Insert access key</span>
+                </button>
+              </div>
+            </div>
+            <div className="welcome-footer"><span>Terraform · Kubernetes · CI/CD · Observability</span><span>READY / 100%</span></div>
+          </div>
+        </section>
+      )}
       <div className="shooting-star-field" aria-hidden="true">
         {shootingStars.map((star) => <span className="shooting-star" key={star} />)}
       </div>
