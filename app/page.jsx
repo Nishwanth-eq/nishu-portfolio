@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FaAws, FaFilePdf, FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa'
 import {
   SiBetterstack,
@@ -141,6 +141,8 @@ const productionProof = [
 
 const crystalDots = Array.from({ length: 14 }, (_, index) => index)
 const shootingStars = Array.from({ length: 5 }, (_, index) => index)
+const networkNodes = Array.from({ length: 12 }, (_, index) => index)
+const networkLines = Array.from({ length: 7 }, (_, index) => index)
 
 const workStories = [
   {
@@ -175,101 +177,45 @@ const workStories = [
   },
 ]
 
-function playVaultUnlockSound() {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+function playVaultUnlockSound(recordings) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !recordings) return
 
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext
-  if (!AudioContextClass) return
+  const { lock, door } = recordings
+  if (recordings.timer) window.clearTimeout(recordings.timer)
+  ;[lock, door].forEach((sound) => {
+    sound.pause()
+    sound.currentTime = 0
+  })
 
-  try {
-    const audio = new AudioContextClass()
-    const now = audio.currentTime
-    const master = audio.createGain()
-    const compressor = audio.createDynamicsCompressor()
-    master.gain.setValueAtTime(0.48, now)
-    compressor.threshold.setValueAtTime(-20, now)
-    compressor.knee.setValueAtTime(14, now)
-    compressor.ratio.setValueAtTime(7, now)
-    compressor.attack.setValueAtTime(0.004, now)
-    compressor.release.setValueAtTime(0.28, now)
-    master.connect(compressor)
-    compressor.connect(audio.destination)
-
-    const resonance = ({ start, duration, frequency, endFrequency, gain, type = 'sine' }) => {
-      const oscillator = audio.createOscillator()
-      const envelope = audio.createGain()
-      oscillator.type = type
-      oscillator.frequency.setValueAtTime(frequency, now + start)
-      oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + start + duration)
-      envelope.gain.setValueAtTime(0.0001, now + start)
-      envelope.gain.exponentialRampToValueAtTime(gain, now + start + 0.012)
-      envelope.gain.exponentialRampToValueAtTime(0.0001, now + start + duration)
-      oscillator.connect(envelope)
-      envelope.connect(master)
-      oscillator.start(now + start)
-      oscillator.stop(now + start + duration + 0.02)
-    }
-
-    const noiseLayer = ({ start, duration, gain, frequency, endFrequency = frequency, type = 'bandpass', q = 1 }) => {
-      const noiseLength = Math.floor(audio.sampleRate * duration)
-      const noiseBuffer = audio.createBuffer(1, noiseLength, audio.sampleRate)
-      const noiseData = noiseBuffer.getChannelData(0)
-      for (let sample = 0; sample < noiseLength; sample += 1) noiseData[sample] = (Math.random() * 2) - 1
-
-      const noise = audio.createBufferSource()
-      const filter = audio.createBiquadFilter()
-      const envelope = audio.createGain()
-      noise.buffer = noiseBuffer
-      filter.type = type
-      filter.Q.setValueAtTime(q, now + start)
-      filter.frequency.setValueAtTime(frequency, now + start)
-      filter.frequency.exponentialRampToValueAtTime(endFrequency, now + start + duration)
-      envelope.gain.setValueAtTime(0.0001, now + start)
-      envelope.gain.exponentialRampToValueAtTime(gain, now + start + Math.min(0.08, duration * 0.22))
-      envelope.gain.exponentialRampToValueAtTime(0.0001, now + start + duration)
-      noise.connect(filter)
-      filter.connect(envelope)
-      envelope.connect(master)
-      noise.start(now + start)
-      noise.stop(now + start + duration + 0.02)
-    }
-
-    noiseLayer({ start: 0, duration: 0.22, gain: 0.32, frequency: 760, endFrequency: 190, q: 1.8 })
-    resonance({ start: 0, duration: 0.48, frequency: 138, endFrequency: 84, gain: 0.28 })
-    resonance({ start: 0.018, duration: 0.38, frequency: 227, endFrequency: 142, gain: 0.15 })
-    resonance({ start: 0.05, duration: 0.55, frequency: 64, endFrequency: 42, gain: 0.22 })
-
-    noiseLayer({ start: 0.9, duration: 1.48, gain: 0.18, frequency: 135, endFrequency: 230, q: 0.8 })
-    noiseLayer({ start: 0.94, duration: 1.42, gain: 0.08, frequency: 920, endFrequency: 470, type: 'bandpass', q: 2.4 })
-    resonance({ start: 0.9, duration: 1.48, frequency: 43, endFrequency: 35, gain: 0.24, type: 'triangle' })
-    resonance({ start: 0.9, duration: 1.48, frequency: 57, endFrequency: 69, gain: 0.13, type: 'triangle' })
-    for (let ratchet = 0; ratchet < 5; ratchet += 1) {
-      const start = 1.06 + (ratchet * 0.25)
-      noiseLayer({ start, duration: 0.1, gain: 0.11, frequency: 460 - (ratchet * 35), endFrequency: 150, q: 1.4 })
-      resonance({ start, duration: 0.2, frequency: 118 - (ratchet * 6), endFrequency: 72, gain: 0.08 })
-    }
-
-    noiseLayer({ start: 2.28, duration: 1.16, gain: 0.23, frequency: 170, endFrequency: 62, type: 'lowpass', q: 0.7 })
-    noiseLayer({ start: 2.3, duration: 1.02, gain: 0.075, frequency: 820, endFrequency: 380, q: 0.65 })
-    resonance({ start: 2.28, duration: 1.14, frequency: 39, endFrequency: 27, gain: 0.3, type: 'triangle' })
-    resonance({ start: 2.32, duration: 0.92, frequency: 72, endFrequency: 46, gain: 0.1 })
-
-    noiseLayer({ start: 3.36, duration: 0.2, gain: 0.28, frequency: 420, endFrequency: 85, q: 1.1 })
-    resonance({ start: 3.36, duration: 0.62, frequency: 76, endFrequency: 38, gain: 0.32 })
-    resonance({ start: 3.38, duration: 0.4, frequency: 126, endFrequency: 66, gain: 0.14 })
-
-    if (audio.state === 'suspended') audio.resume().catch(() => {})
-    window.setTimeout(() => audio.close().catch(() => {}), 4500)
-  } catch {
-    // The visual unlock remains available when browser audio is unavailable.
-  }
+  lock.volume = 0.78
+  door.volume = 0.86
+  door.playbackRate = 1.28
+  lock.play().catch(() => {})
+  recordings.timer = window.setTimeout(() => door.play().catch(() => {}), 700)
 }
-
 export default function Home() {
   const [welcomeState, setWelcomeState] = useState('open')
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState('dark')
   const [formStatus, setFormStatus] = useState({ type: 'idle', message: '' })
+  const vaultAudioRef = useRef(null)
+
+  useEffect(() => {
+    const lock = new Audio('/audio/vault-gear-lock.mp3')
+    const door = new Audio('/audio/vault-door-open.mp3')
+    lock.preload = 'auto'
+    door.preload = 'auto'
+    vaultAudioRef.current = { lock, door, timer: null }
+    lock.load()
+    door.load()
+
+    return () => {
+      if (vaultAudioRef.current?.timer) window.clearTimeout(vaultAudioRef.current.timer)
+      lock.pause()
+      door.pause()
+      vaultAudioRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -282,7 +228,7 @@ export default function Home() {
   useEffect(() => {
     if (welcomeState !== 'unlocking') return undefined
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const timer = window.setTimeout(() => setWelcomeState('closed'), reduceMotion ? 0 : 3500)
+    const timer = window.setTimeout(() => setWelcomeState('closed'), reduceMotion ? 0 : 3900)
     return () => window.clearTimeout(timer)
   }, [welcomeState])
 
@@ -347,9 +293,113 @@ export default function Home() {
     }
   }, [])
 
+  useEffect(() => {
+    const root = document.documentElement
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const tiltTargets = [...document.querySelectorAll(
+      '.hero-visual, .capability-card, .flow-stage, .story-card, .observability-feature, .job-card, .principles-grid > div, .contact-panel'
+    )]
+    const magneticTargets = [...document.querySelectorAll(
+      '.primary-button, .secondary-button, .resume-link, .contact-links a, .contact-form button'
+    )]
+
+    const updatePointer = (event) => {
+      root.style.setProperty('--pointer-x', `${event.clientX}px`)
+      root.style.setProperty('--pointer-y', `${event.clientY}px`)
+    }
+
+    const moveTilt = (event) => {
+      const target = event.currentTarget
+      const bounds = target.getBoundingClientRect()
+      const x = (event.clientX - bounds.left) / bounds.width
+      const y = (event.clientY - bounds.top) / bounds.height
+      target.style.setProperty('--tilt-x', `${((0.5 - y) * 5).toFixed(2)}deg`)
+      target.style.setProperty('--tilt-y', `${((x - 0.5) * 6).toFixed(2)}deg`)
+      target.style.setProperty('--glow-x', `${(x * 100).toFixed(1)}%`)
+      target.style.setProperty('--glow-y', `${(y * 100).toFixed(1)}%`)
+    }
+
+    const resetTilt = (event) => {
+      const target = event.currentTarget
+      target.style.setProperty('--tilt-x', '0deg')
+      target.style.setProperty('--tilt-y', '0deg')
+      target.style.setProperty('--glow-x', '50%')
+      target.style.setProperty('--glow-y', '50%')
+    }
+
+    const moveMagnetic = (event) => {
+      const target = event.currentTarget
+      const bounds = target.getBoundingClientRect()
+      const x = event.clientX - bounds.left - bounds.width / 2
+      const y = event.clientY - bounds.top - bounds.height / 2
+      target.style.setProperty('--magnetic-x', `${(x * 0.12).toFixed(2)}px`)
+      target.style.setProperty('--magnetic-y', `${(y * 0.12).toFixed(2)}px`)
+    }
+
+    const resetMagnetic = (event) => {
+      event.currentTarget.style.setProperty('--magnetic-x', '0px')
+      event.currentTarget.style.setProperty('--magnetic-y', '0px')
+    }
+
+    const addRipple = (event) => {
+      const target = event.currentTarget
+      const bounds = target.getBoundingClientRect()
+      const ripple = document.createElement('span')
+      const size = Math.max(bounds.width, bounds.height) * 1.35
+      ripple.className = 'button-ripple'
+      ripple.style.width = `${size}px`
+      ripple.style.height = `${size}px`
+      ripple.style.left = `${event.clientX - bounds.left - size / 2}px`
+      ripple.style.top = `${event.clientY - bounds.top - size / 2}px`
+      target.appendChild(ripple)
+      window.setTimeout(() => ripple.remove(), 650)
+    }
+
+    const updateScrollProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      const progress = scrollable > 0 ? window.scrollY / scrollable : 0
+      root.style.setProperty('--scroll-progress', `${Math.min(1, Math.max(0, progress))}`)
+    }
+
+    window.addEventListener('scroll', updateScrollProgress, { passive: true })
+    updateScrollProgress()
+
+    if (!reduceMotion.matches && finePointer.matches) {
+      window.addEventListener('pointermove', updatePointer, { passive: true })
+      tiltTargets.forEach((target) => {
+        target.classList.add('interactive-tilt')
+        target.addEventListener('pointermove', moveTilt)
+        target.addEventListener('pointerleave', resetTilt)
+      })
+      magneticTargets.forEach((target) => {
+        target.classList.add('magnetic-control')
+        target.addEventListener('pointermove', moveMagnetic)
+        target.addEventListener('pointerleave', resetMagnetic)
+        target.addEventListener('pointerdown', addRipple)
+      })
+    }
+
+    return () => {
+      window.removeEventListener('scroll', updateScrollProgress)
+      window.removeEventListener('pointermove', updatePointer)
+      tiltTargets.forEach((target) => {
+        target.classList.remove('interactive-tilt')
+        target.removeEventListener('pointermove', moveTilt)
+        target.removeEventListener('pointerleave', resetTilt)
+      })
+      magneticTargets.forEach((target) => {
+        target.classList.remove('magnetic-control')
+        target.removeEventListener('pointermove', moveMagnetic)
+        target.removeEventListener('pointerleave', resetMagnetic)
+        target.removeEventListener('pointerdown', addRipple)
+      })
+    }
+  }, [welcomeState])
+
   const closeMenu = () => setMenuOpen(false)
   const explorePortfolio = () => {
-    playVaultUnlockSound()
+    playVaultUnlockSound(vaultAudioRef.current)
     setWelcomeState('unlocking')
   }
 
@@ -441,6 +491,19 @@ export default function Home() {
       <div className="crystal-field" aria-hidden="true">
         {crystalDots.map((dot) => <span className="crystal-dot" key={dot} />)}
       </div>
+      <div className="ambient-stage" aria-hidden="true">
+        <span className="aurora-orb aurora-orb-one" />
+        <span className="aurora-orb aurora-orb-two" />
+        <span className="aurora-orb aurora-orb-three" />
+        <div className="network-mesh">
+          {networkLines.map((line) => <i className="network-line" key={`line-${line}`} />)}
+          {networkNodes.map((node) => <i className="network-node" key={`node-${node}`} />)}
+        </div>
+        <span className="ambient-shape ambient-shape-one" />
+        <span className="ambient-shape ambient-shape-two" />
+      </div>
+      <div className="pointer-spotlight" aria-hidden="true" />
+      <div className="scroll-progress" aria-hidden="true" />
 
       <header className="site-header">
         <div className="nav shell">
